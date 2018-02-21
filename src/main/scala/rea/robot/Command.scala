@@ -11,7 +11,7 @@ final case class Place(position: Position) extends Command
 
 object Command {
   val placeCommandRegex: Regex = """\s*PLACE\s+(\d+)\s*,\s*(\d+)\s*,\s*(NORTH|SOUTH|EAST|WEST)\s*""".r
-  def apply(input: String): Option[Command] = input.trim.toUpperCase match {
+  def parse(input: String): Option[Command] = input.trim.toUpperCase match {
     case "MOVE" => Some(Move)
     case "RIGHT" => Some(Right)
     case "LEFT" => Some(Left)
