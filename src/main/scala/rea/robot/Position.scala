@@ -6,16 +6,19 @@ sealed trait Position {
   def right: Position
   def move: Position
   def place(newPosition: Placed): Position = newPosition
+  def isPlaced: Boolean
 }
 final case object NotPlaced extends Position {
   def left = this
   def right = this
   def move = this
+  val isPlaced: Boolean = false
 }
 final case class Placed(coordinates: Coordinates, direction: Direction) extends Position {
   def left = this.copy(direction = direction.left)
   def right = this.copy(direction = direction.right)
   def move = this.copy(coordinates = coordinates.move(direction))
+  val isPlaced: Boolean = true
 }
 
 object Position {

@@ -26,3 +26,7 @@ object Command {
     case _ => None
   }
 }
+
+object Place {
+  def apply(x: Int, y: Int, direction: Direction): Place = Place(Placed(x, y, direction))
+}
