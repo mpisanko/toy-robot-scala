@@ -17,4 +17,9 @@ class DirectionTest extends FlatSpec with Matchers {
     Direction.parse("not a direction") shouldEqual None
     Direction.parse("southeast") shouldEqual None
   }
+
+  it should "get back to self after four rotations the same way" in {
+    Seq(North, East, South, West).foreach(d => d.left.left.left.left shouldEqual d)
+    Seq(North, East, South, West).foreach(d => d.right.right.right.right shouldEqual d)
+  }
 }
