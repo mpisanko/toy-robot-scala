@@ -17,16 +17,21 @@ case class Robot(position: Position = NotPlaced, bounds: Coordinates = Coordinat
     case Placed(coords, _) => coords.within(bounds)
     case _ => false
   }
-  def execute(maybeCommand: Option[Command]): Robot = maybeCommand match {
+
+  def execute(maybeCommand: Option[Command])(implicit reporter: Reporter): Robot = maybeCommand match {
     case Some(command) => doExecute(command)
     case None => this
   }
-  def doExecute(command: Command): Robot = command match {
+
+  private def doExecute(command: Command)(implicit reporter: Reporter): Robot = command match {
     case Left => this.copy(position = position.left)
     case Right => this.copy(position = position.right)
     case Move => this.copy(position = position.move)
     case Place(newPosition: Placed) => this.copy(position = position.place(newPosition))
-
+    case Report => position match {
+      case Placed(coordinates, direction) => reporter.report(coordinates, direction); this
+      case _ => this
+    }
     case _ => this
   }
   private def isPlaced: Boolean = position.isPlaced
