@@ -29,4 +29,21 @@ class RobotTest extends FlatSpec with Matchers {
     robot.isCommandValid(Place(NotPlaced)) shouldEqual false
     robot.isCommandValid(Place(Placed(2,2, North))) shouldEqual false
     }
+
+  it should "ignore movement commands before being placed" in {
+    val robot = Robot(NotPlaced, Coordinates(1, 1))
+    robot.execute(Left).position shouldEqual robot.position
+    robot.execute(Move).position shouldEqual robot.position
+    robot.execute(Right).position shouldEqual robot.position
   }
+
+  it should "accept place command if within table bounds" in {
+    val robot = Robot(NotPlaced, Coordinates(1, 1))
+    val placedRobot = robot.execute(Place(0,0, North))
+    placedRobot.position shouldEqual Robot(Placed(0,0,North), Coordinates(1, 1)).position
+    val movedRobot = placedRobot.execute(Move)
+    movedRobot.position shouldEqual Robot(Placed(0,1,North), Coordinates(1, 1)).position
+    movedRobot.execute(Move).position shouldEqual movedRobot.position
+    movedRobot.execute(Right).position shouldEqual Robot(Placed(0,1,East), Coordinates(1, 1)).position
+  }
+}
