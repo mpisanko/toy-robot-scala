@@ -8,7 +8,7 @@ trait Reporter {
 
 class ConsoleReporter extends Reporter {
   def report(coordinates: Coordinates, direction: Direction): Unit =
-    println(s"${coordinates.x}, ${coordinates.y} ${direction.toString.toUpperCase}")
+    println(s"Current position is: ${coordinates.x}, ${coordinates.y} ${direction.toString.toUpperCase}")
 }
 
 /**
