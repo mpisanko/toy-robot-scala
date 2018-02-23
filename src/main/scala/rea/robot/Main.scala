@@ -14,7 +14,7 @@ object Main {
   }
 
   def doProcessing(): Robot = {
-    lazy val (messages, errors, reporter, input, tableBounds) = Configuration.configureRobot((List(), List()))
+    lazy val (messages, errors, reporter, tableBounds, input) = Configuration.configureRobot((List(), List()))
 
     reportAndTerminateIfErrorsFound(messages, errors)
 
@@ -62,7 +62,7 @@ object Main {
         |LEFT
         |REPORT (println information about robot's position and bearing)
         |
-        |You can customise the program by using environment properties:
+        |You can customise the program by using environment variables:
         |REPORTER_CLASS - Reporter, one of: rea.robot.ConsoleReporter or rea.robot.NoopReporter
         |INPUT_FILE - input file to read commands from (otherwise commands will be read from STDIN)
         |TABLE_BOUNDS - set size of the table robot moves around, specified as: width:height, default 4:4

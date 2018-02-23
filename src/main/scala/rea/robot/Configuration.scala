@@ -12,48 +12,52 @@ object Configuration {
   type Errors = List[String]
   type Messages = List[String]
 
-
   val REPORTER_CLASS = "REPORTER_CLASS"
   val INPUT_FILE = "INPUT_FILE"
   val TABLE_BOUNDS = "TABLE_BOUNDS"
 
-  val configureRobot: ((Messages, Errors)) => ((Messages, Errors, Reporter, BufferedSource, Coordinates)) =
-    configureReporter _ andThen configureInputSource _ andThen configureBounds _
-
+  val DEFAULT_TABLE_BOUNDS = "5:5"
   val DEFAULT_REPORTER_CLASS = "rea.robot.ConsoleReporter"
+
+  val configureRobot: ((Messages, Errors)) => ((Messages, Errors, Reporter, Coordinates, BufferedSource)) =
+    configureReporter _ andThen configureBounds _ andThen configureInputSource _
+
   def configureReporter(args: (Messages, Errors)): (Messages, Errors, Reporter) = try {
-    (s"Reporter: ${getEnv(REPORTER_CLASS, DEFAULT_REPORTER_CLASS)}" :: args._1, args._2, Class.forName(getEnv(REPORTER_CLASS, DEFAULT_REPORTER_CLASS)).newInstance.asInstanceOf[Reporter])
+    (s"Reporter: ${getEnv(REPORTER_CLASS, DEFAULT_REPORTER_CLASS)}" :: args._1, args._2,
+      Class.forName(getEnv(REPORTER_CLASS, DEFAULT_REPORTER_CLASS)).newInstance.asInstanceOf[Reporter])
   } catch {
-    case _: ClassNotFoundException => (args._1, s"Class '${getEnv(REPORTER_CLASS, "")}' not found." :: args._2, new ConsoleReporter)
-    case _: Throwable => (args._1, s"Problem instantiating class '${getEnv(REPORTER_CLASS, "")}'." :: args._2, new ConsoleReporter)
+    case _: ClassNotFoundException => (args._1, s"Class '${getEnv(REPORTER_CLASS, "")}' not found." :: args._2,
+      new ConsoleReporter)
+    case _: Throwable => (args._1, s"Problem instantiating class '${getEnv(REPORTER_CLASS, "")}'." :: args._2,
+      new ConsoleReporter)
   }
 
-  def configureInputSource(args: (Messages, Errors, Reporter)): (Messages, Errors, Reporter, BufferedSource) =
-    getEnv(INPUT_FILE).map(fileName => try {
-      (s"Using file $fileName as input." :: args._1, args._2, args._3, io.Source.fromFile(fileName))
-    } catch {
-      case _: FileNotFoundException => (args._1, s"File $fileName not found." :: args._2, args._3, io.Source.stdin)
-      case _: Throwable => (args._1, s"Encountered a problem reading file: $fileName" :: args._2, args._3, io.Source.stdin)
-    }).getOrElse ("Please input commands (command<ENTER>). To end press CTRL+D." :: args._1, args._2, args._3, io.Source.stdin)
-
   val tableBoundsRegex: Regex = """(\d+):(\d+)""".r
-  val DEFAULT_TABLE_BOUNDS = "5:5"
   /**
     * Coordinates are zero based so we need to subtract 1 from desired size.
     * @return
     */
-  def configureBounds(args: (Messages, Errors, Reporter, BufferedSource)): (Messages, Errors, Reporter, BufferedSource, Coordinates) =
+  def configureBounds(args: (Messages, Errors, Reporter)): (Messages, Errors, Reporter, Coordinates) =
     getEnv(TABLE_BOUNDS, DEFAULT_TABLE_BOUNDS) match {
       case tableBoundsRegex(x, y) =>
         val (maxX, maxY) = (x.toInt - 1, y.toInt - 1)
         if (maxX >= 0 && maxY >= 0) {
-          (s"Table size: ${maxX + 1} by ${maxY + 1}" :: args._1, args._2, args._3, args._4, Coordinates(maxX, maxY))
+          (s"Table size: ${maxX + 1} by ${maxY + 1}" :: args._1, args._2, args._3, Coordinates(maxX, maxY))
         } else {
-          (args._1, s"Table size must be at least 1x1, but was: ${x}x$y)" :: args._2, args._3, args._4, Coordinates(maxX, maxY))
+          (args._1, s"Table size must be at least 1x1, but was: ${x}x$y)" :: args._2, args._3, Coordinates(maxX, maxY))
         }
       case _ =>
-        (args._1, s"Table size must be specified as Width:Height (eg: 4:4), but was: ${getEnv(TABLE_BOUNDS, "")})" :: args._2, args._3, args._4, Coordinates(4, 4))
+        (args._1, s"Table size must be specified as Width:Height (eg: 4:4), but was: ${getEnv(TABLE_BOUNDS, "")})" :: args._2, args._3, Coordinates(4, 4))
     }
+
+  def configureInputSource(args: (Messages, Errors, Reporter, Coordinates)): (Messages, Errors, Reporter, Coordinates, BufferedSource) =
+    getEnv(INPUT_FILE).map(fileName => try {
+      (s"Using file $fileName as input." :: args._1, args._2, args._3, args._4, io.Source.fromFile(fileName))
+    } catch {
+      case _: FileNotFoundException => (args._1, s"File $fileName not found." :: args._2, args._3, args._4, io.Source.stdin)
+      case _: Throwable => (args._1, s"Encountered a problem reading file: $fileName" :: args._2, args._3, args._4, io.Source.stdin)
+    }).getOrElse ("Please input commands (command<ENTER>). To end press CTRL+D." :: args._1, args._2,
+      args._3, args._4, io.Source.stdin)
 
   def getEnv(key: String, default: String): String = {
     scala.util.Properties.envOrElse(key, default)
