@@ -21,4 +21,7 @@ Reporting will be done straight away by writing to STDOUT.
 
 ## Testing
 To test - run `sbt test` (for unit tests) and `sbt it:test` (for integration tests) from root of the project.  
- 
+
+## Running
+In order to build an uberjar (containing programme + dependencies) run: `./scripts/build.sh`.  
+Then run ./script/run.sh setting any required environment variables, eg: `INPUT_FILE=commands.txt ./scripts/run.sh`
