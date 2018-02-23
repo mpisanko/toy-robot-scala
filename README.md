@@ -18,3 +18,7 @@ Size of the table can be specified using `TABLE_BOUNDS` property, which has form
 ## Processing
 The application processes a stream of commands by parsing text, filtering out invalid input, discarding illegal commands and executing the correct ones.  
 Reporting will be done straight away by writing to STDOUT.   
+
+## Testing
+To test - run `sbt test` (for unit tests) and `sbt it:test` (for integration tests) from root of the project.  
+ 

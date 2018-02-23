@@ -1,6 +1,7 @@
 import Dependencies._
-
+lazy val IntegrationTest = config("it") extend(Test)
 lazy val root = (project in file(".")).
+  configs(IntegrationTest).
   settings(
     inThisBuild(List(
       organization := "rea.robot",
@@ -9,5 +10,6 @@ lazy val root = (project in file(".")).
       assemblyJarName in assembly := "toy-robot.jar"
     )),
     name := "toy-robot",
-    libraryDependencies += scalaTest % Test
+    libraryDependencies += scalaTest % "it,test",
+    Defaults.itSettings
   )

@@ -1,14 +1,12 @@
 package rea.robot
 
-import org.scalamock.scalatest.MockFactory
 import org.scalatest.{FlatSpec, Matchers}
 import rea.robot.Position.Coordinates
 
 import scala.collection.mutable
 
-class ConfigurationTest extends FlatSpec with Matchers with MockFactory {
-
-
+class ConfigurationTest extends FlatSpec with Matchers {
+  import ConfigurationTest.{setEnv, rmEnv}
   it should "be able to select desired Reporter" in {
     setEnv(Configuration.REPORTER_CLASS, "rea.robot.StringListReporter")
     val (msgs, errs, reporter) = Configuration.configureReporter(List(), List())
@@ -103,26 +101,19 @@ class ConfigurationTest extends FlatSpec with Matchers with MockFactory {
     assert(input.getLines.nonEmpty)
   }
 
+}
+
+object ConfigurationTest {
   def setEnv(key: String, value: String) = {
     enabledEnvMap.put(key, value)
   }
-
   def rmEnv(key: String) = {
     enabledEnvMap.remove(key)
   }
-
   private def enabledEnvMap: java.util.Map[String, String] = {
     val field = System.getenv().getClass.getDeclaredField("m")
     field.setAccessible(true)
     field.get(System.getenv()).asInstanceOf[java.util.Map[java.lang.String, java.lang.String]]
-  }
-
-}
-
-class StringListReporter extends Reporter {
-  val reports = new mutable.ListBuffer[String]
-   override def report(coordinates: Position.Coordinates, direction: Direction): Unit = {
-    reports.append(s"${coordinates.x},${coordinates.y},$direction")
   }
 }
 

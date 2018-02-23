@@ -6,6 +6,21 @@ import scala.io.BufferedSource
 
 object Main {
 
+  val USAGE_STRING =
+    """Run toy robot. Commands can be specified passed via STDIN or as text file. Available commands are:
+      |PLACE X,Y,F (where X, Y have to be within table bounds - or else will be ignored,
+      |                   F is direction: NORTH/SOUTH/EAST/WEST)
+      |MOVE
+      |RIGHT
+      |LEFT
+      |REPORT (println information about robot's position and bearing)
+      |
+      |You can customise the program by using environment variables:
+      |REPORTER_CLASS - Reporter, one of: rea.robot.ConsoleReporter or rea.robot.NoopReporter
+      |INPUT_FILE - input file to read commands from (otherwise commands will be read from STDIN)
+      |TABLE_BOUNDS - set size of the table robot moves around, specified as: width:height, default 4:4
+    """.stripMargin
+
   def main(args: Array[String]): Unit = {
     args.toList match {
       case ("--help" :: Nil) => usage()
@@ -54,18 +69,6 @@ object Main {
   }
 
   def usage(): Unit = {
-    println(
-      """Run toy robot. Commands can be specified passed via STDIN or as text file. Available commands are:
-        |PLACE X,Y,F (where X, Y have to be within table bounds - or else will be ignored, F is direction: NORTH/SOUTH/EAST/WEST)
-        |MOVE
-        |RIGHT
-        |LEFT
-        |REPORT (println information about robot's position and bearing)
-        |
-        |You can customise the program by using environment variables:
-        |REPORTER_CLASS - Reporter, one of: rea.robot.ConsoleReporter or rea.robot.NoopReporter
-        |INPUT_FILE - input file to read commands from (otherwise commands will be read from STDIN)
-        |TABLE_BOUNDS - set size of the table robot moves around, specified as: width:height, default 4:4
-      """.stripMargin)
+    println(USAGE_STRING)
   }
 }

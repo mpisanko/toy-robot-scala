@@ -31,5 +31,5 @@ case class Robot(position: Position = NotPlaced, bounds: Coordinates = Coordinat
       case _ => this
     } else this
 
-  private def isPlaced: Boolean = position.isPlaced
+  def isPlaced: Boolean = position.isPlaced
 }
