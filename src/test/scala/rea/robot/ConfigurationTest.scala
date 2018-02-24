@@ -93,7 +93,7 @@ class ConfigurationTest extends FlatSpec with Matchers {
     setEnv(Configuration.REPORTER_CLASS, "rea.robot.StringListReporter")
     setEnv(Configuration.TABLE_BOUNDS, "666:667")
     setEnv(Configuration.INPUT_FILE, "commands.txt")
-    val (msgs, errs, reporter, bounds, input) = Configuration.configureRobot(List(), List())
+    val (msgs, errs, reporter, bounds, input) = Configuration.buildRobotsConfiguration(List(), List())
     assert(errs.isEmpty)
     assert(msgs.size == 3)
     assert(reporter.getClass == classOf[StringListReporter])

@@ -6,7 +6,7 @@ import scala.io.BufferedSource
 
 object Main {
 
-  val USAGE_STRING =
+  val USAGE_STRING: String =
     """Run toy robot. Commands can be specified passed via STDIN or as text file. Available commands are:
       |PLACE X,Y,F (where X, Y have to be within table bounds - or else will be ignored,
       |                   F is direction: NORTH/SOUTH/EAST/WEST)
@@ -29,7 +29,7 @@ object Main {
   }
 
   def doProcessing(): Robot = {
-    lazy val (messages, errors, reporter, tableBounds, input) = Configuration.configureRobot((List(), List()))
+    lazy val (messages, errors, reporter, tableBounds, input) = Configuration.buildRobotsConfiguration((List(), List()))
 
     reportAndTerminateIfErrorsFound(messages, errors)
 
@@ -38,7 +38,7 @@ object Main {
   }
 
   def processInput(robot: Robot)(input: BufferedSource): Robot =
-    input.getLines.map(Command.parse).flatten.foldLeft(robot)(reducer(_, _))
+    input.getLines.flatMap(Command.parse).foldLeft(robot)(reducer(_, _))
 
   def reducer(robot: Robot, command: Command): Robot = robot.execute(command)
 

@@ -19,7 +19,12 @@ object Configuration {
   val DEFAULT_TABLE_BOUNDS = "5:5"
   val DEFAULT_REPORTER_CLASS = "rea.robot.ConsoleReporter"
 
-  val configureRobot: ((Messages, Errors)) => ((Messages, Errors, Reporter, Coordinates, BufferedSource)) =
+  /**
+    * This builds up robot's configuration from environment variables. Along the way accumulates messages and errors
+    * that can be displayed to user.
+    * This function takes
+    */
+  val buildRobotsConfiguration: ((Messages, Errors)) => ((Messages, Errors, Reporter, Coordinates, BufferedSource)) =
     configureReporter _ andThen configureBounds _ andThen configureInputSource _
 
   def configureReporter(args: (Messages, Errors)): (Messages, Errors, Reporter) = try {
