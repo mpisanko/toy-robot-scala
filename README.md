@@ -1,5 +1,7 @@
 Toy Robot Simulator
 ===================
+## Prerequisites
+The application being JVM based - it requires `Java 8` and `sbt` to run (alternatively the `jar` can be run w/o `sbt`).
 
 ## Assumptions
 The default table size is 5x5 but can be changed.  

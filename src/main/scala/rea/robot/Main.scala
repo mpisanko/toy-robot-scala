@@ -23,12 +23,16 @@ object Main {
 
   def main(args: Array[String]): Unit = {
     args.toList match {
-      case ("--help" :: Nil) => usage()
-      case _ => doProcessing()
+      case ("--help" :: Nil) => printUsage()
+      case _ => runRobot()
     }
   }
 
-  def doProcessing(): Robot = {
+  /**
+    * Read Robot configuration and let Robot process commands from configured Source.
+    * @return Robot in position after processing all commands
+    */
+  def runRobot(): Robot = {
     lazy val (messages, errors, reporter, tableBounds, input) = Configuration.buildRobotsConfiguration((List(), List()))
 
     reportAndTerminateIfErrorsFound(messages, errors)
@@ -37,11 +41,13 @@ object Main {
     withOpen(input)(processInput(robot))
   }
 
-  def processInput(robot: Robot)(input: BufferedSource): Robot =
-    input.getLines.flatMap(Command.parse).foldLeft(robot)(reducer(_, _))
-
-  def reducer(robot: Robot, command: Command): Robot = robot.execute(command)
-
+  /**
+    * Helper function for passing the commands to robot and closing Resource afterwards
+    * @param robot Robot processing the commands
+    * @param input commands from some source
+    * @return Robot resulting from processing all the commands
+    */
+  private def processInput(robot: Robot)(input: BufferedSource): Robot = robot.processCommands(input.getLines)
 
   /**
     * This assures that a closeable resource R will be closed after processing.
@@ -68,7 +74,7 @@ object Main {
     }
   }
 
-  def usage(): Unit = {
+  private def printUsage(): Unit = {
     println(USAGE_STRING)
   }
 }

@@ -14,7 +14,7 @@ class MainTest extends FlatSpec with Matchers {
     setEnv(Configuration.TABLE_BOUNDS, "5:5")
     setEnv(Configuration.INPUT_FILE, "commands.txt")
 
-    val robot = Main.doProcessing()
+    val robot = Main.runRobot()
     assert(robot.isPlaced)
     val reporter = robot.reporter.asInstanceOf[StringListReporter]
     assert(reporter.reports.size == 3)
@@ -25,7 +25,7 @@ class MainTest extends FlatSpec with Matchers {
     setEnv(Configuration.TABLE_BOUNDS, "67:7")
     setEnv(Configuration.INPUT_FILE, "commands.txt")
 
-    val robot = Main.doProcessing()
+    val robot = Main.runRobot()
     assert(robot.isPlaced)
     val reporter = robot.reporter.asInstanceOf[StringListReporter]
     assert(reporter.reports.size == 4)
@@ -36,7 +36,7 @@ class MainTest extends FlatSpec with Matchers {
     setEnv(Configuration.TABLE_BOUNDS, "1:1")
     setEnv(Configuration.INPUT_FILE, "commands.txt")
 
-    val robot = Main.doProcessing()
+    val robot = Main.runRobot()
     assert(robot.isPlaced == false)
     val reporter = robot.reporter.asInstanceOf[StringListReporter]
     assert(reporter.reports.isEmpty)
