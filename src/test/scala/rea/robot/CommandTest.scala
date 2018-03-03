@@ -11,6 +11,7 @@ class CommandTest extends FlatSpec with Matchers {
     Command.parse("move") shouldEqual Some(Move)
     Command.parse("Place 2, 4 , North") shouldEqual Some(Place(Placed(2, 4, North)))
     Command.parse("  plACe   0, 3,    easT   ") shouldEqual Some(Place(Placed(0, 3, East)))
+    Command.parse("plaCe_Object") shouldEqual Some(PlaceObject)
   }
 
   it should "ignore incorrect commands" in {

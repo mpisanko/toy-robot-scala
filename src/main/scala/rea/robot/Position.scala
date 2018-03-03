@@ -30,10 +30,10 @@ object Position {
     def within(other: Coordinates) = 0 <= x && 0 <= y && x <= other.x && y <= other.y
     def encloses(other: Coordinates) = 0 <= other.x && 0 <= other.y && x >= other.x && y >= other.y
     def move(direction: Direction): Coordinates = direction match {
-      case North => this.copy(x, y + 1)
-      case South => this.copy(x, y - 1)
-      case East => this.copy(x + 1, y)
-      case West => this.copy(x - 1, y)
+      case North => this.copy(y = y + 1)
+      case South => this.copy(y = y - 1)
+      case East => this.copy(x = x + 1)
+      case West => this.copy(x = x - 1)
     }
   }
 }

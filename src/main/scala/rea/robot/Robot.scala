@@ -1,8 +1,9 @@
 package rea.robot
 
 import Position.Coordinates
+import rea.robot.Robot.Bounds
 
-case class Robot(position: Position = NotPlaced, bounds: Coordinates = Coordinates(4, 4), reporter: Reporter = new ConsoleReporter) {
+case class Robot(position: Position = NotPlaced, bounds: Bounds = Bounds(4, 4), reporter: Reporter = new ConsoleReporter) {
 
   /**
     * Reducer for the foldLeft operation (a Robot takes new command as input and returns resulting Robot)
@@ -34,11 +35,12 @@ case class Robot(position: Position = NotPlaced, bounds: Coordinates = Coordinat
       case Right => this.copy(position = position.right)
       case Move => this.copy(position = position.move)
       case Place(newPosition: Placed) => this.copy(position = position.place(newPosition))
+      case Place(NotPlaced) => this
+      case PlaceObject => this.copy(bounds = boundsWithObjectAt(position.move))
       case Report => position match {
         case Placed(coordinates, direction) => reporter.report(coordinates, direction); this
-        case _ => this
+        case NotPlaced => this
       }
-      case _ => this
     } else this
 
   /**
@@ -48,6 +50,16 @@ case class Robot(position: Position = NotPlaced, bounds: Coordinates = Coordinat
   def isPlaced: Boolean = position.isPlaced
 
   /**
+    * Add new object to current bounds at position newPosition
+    * @param newPosition position to add bounds at
+    * @return bounds with new obstacle
+    */
+  private def boundsWithObjectAt(newPosition: Position): Bounds = newPosition match {
+    case Placed(newCoordinates, _) => bounds.copy(obstacles = (bounds.obstacles + newCoordinates))
+    case NotPlaced => bounds
+  }
+
+  /**
     * Command is valid if it is a Place command with coords within bounds or any other command when robot is placed
     * @param command
     * @return whether this command should be executed (or ignored)
@@ -55,11 +67,24 @@ case class Robot(position: Position = NotPlaced, bounds: Coordinates = Coordinat
   private def isCommandValid(command: Command): Boolean = command match {
     case Place(pos) => isPositionValid(pos)
     case Move => isPlaced && isPositionValid(position.move)
-    case _ => isPlaced
+    case PlaceObject => isPlaced && isPositionValid(position.move)
+    case Left => isPlaced
+    case Right => isPlaced
+    case Report => isPlaced
   }
 
-  private def isPositionValid(position: Position): Boolean = position match {
-    case Placed(coords, _) => coords.within(bounds)
-    case _ => false
+  private def isPositionValid(position: Position): Boolean = bounds.positionValid(position)
+
+}
+
+object Robot {
+  case class Bounds(maxCoordinates: Coordinates, obstacles: Set[Coordinates]) {
+    def positionValid(position: Position): Boolean = position match {
+      case Placed(coords, _) => coords.within(maxCoordinates) && !obstacles.contains(coords)
+      case NotPlaced => false
+    }
+  }
+  object Bounds {
+    def apply(x: Int, y: Int, obstacles: Set[Coordinates] = Set.empty): Bounds = Bounds(Coordinates(x, y), obstacles)
   }
 }

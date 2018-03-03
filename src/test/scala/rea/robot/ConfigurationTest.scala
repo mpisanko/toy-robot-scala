@@ -1,9 +1,7 @@
 package rea.robot
 
 import org.scalatest.{FlatSpec, Matchers}
-import rea.robot.Position.Coordinates
-
-import scala.collection.mutable
+import rea.robot.Robot.Bounds
 
 class ConfigurationTest extends FlatSpec with Matchers {
   import ConfigurationTest.{setEnv, rmEnv}
@@ -42,7 +40,7 @@ class ConfigurationTest extends FlatSpec with Matchers {
     val (msgs, errs, _, bounds) = Configuration.configureBounds(List(), List(), new ConsoleReporter)
     assert(errs.isEmpty)
     assert(msgs.size == 1)
-    assert(bounds == Coordinates(665, 1))
+    assert(bounds == Bounds(665, 1))
   }
 
   it should "set default table bounds when not set" in {
@@ -50,7 +48,7 @@ class ConfigurationTest extends FlatSpec with Matchers {
     val (msgs, errs, _, bounds) = Configuration.configureBounds(List(), List(), new ConsoleReporter)
     assert(errs.isEmpty)
     assert(msgs.size == 1)
-    assert(bounds == Coordinates(4, 4))
+    assert(bounds == Bounds(4, 4))
   }
 
   it should "report error when bounds set incorrectly" in {
@@ -69,7 +67,7 @@ class ConfigurationTest extends FlatSpec with Matchers {
 
   it should "configure input source correctly" in {
     setEnv(Configuration.INPUT_FILE, "commands.txt")
-    val (msgs, errs, _, _, input) = Configuration.configureInputSource(List(), List(), new ConsoleReporter, Coordinates(4, 4))
+    val (msgs, errs, _, _, input) = Configuration.configureInputSource(List(), List(), new ConsoleReporter, Bounds(4, 4))
     assert(msgs.size == 1)
     assert(errs.isEmpty)
     assert(input.getLines().nonEmpty)
@@ -77,14 +75,14 @@ class ConfigurationTest extends FlatSpec with Matchers {
 
   it should "report error when input source incorrect" in {
     setEnv(Configuration.INPUT_FILE, "__not-there__")
-    val (msgs, errs, _, _, input) = Configuration.configureInputSource(List(), List(), new ConsoleReporter, Coordinates(4, 4))
+    val (msgs, errs, _, _, input) = Configuration.configureInputSource(List(), List(), new ConsoleReporter, Bounds(4, 4))
     assert(errs.size == 1)
     assert(msgs.isEmpty)
   }
 
   it should "configure input source to STDIN when file not specified" in {
     rmEnv(Configuration.INPUT_FILE)
-    val (msgs, errs, _, _, _) = Configuration.configureInputSource(List(), List(), new ConsoleReporter, Coordinates(4, 4))
+    val (msgs, errs, _, _, _) = Configuration.configureInputSource(List(), List(), new ConsoleReporter, Bounds(4, 4))
     assert(msgs.head == "Please input commands (command<ENTER>). To end press CTRL+D.")
     assert(errs.isEmpty)
   }
@@ -97,7 +95,7 @@ class ConfigurationTest extends FlatSpec with Matchers {
     assert(errs.isEmpty)
     assert(msgs.size == 3)
     assert(reporter.getClass == classOf[StringListReporter])
-    assert(bounds == Coordinates(665, 666))
+    assert(bounds == Bounds(665, 666))
     assert(input.getLines.nonEmpty)
   }
 

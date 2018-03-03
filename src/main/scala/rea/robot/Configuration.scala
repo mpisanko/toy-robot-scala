@@ -2,7 +2,7 @@ package rea.robot
 
 import java.io.FileNotFoundException
 
-import rea.robot.Position.Coordinates
+import rea.robot.Robot.Bounds
 
 import scala.io.BufferedSource
 import scala.util.matching.Regex
@@ -24,7 +24,7 @@ object Configuration {
     * that can be displayed to user.
     * This function takes
     */
-  val buildRobotsConfiguration: ((Messages, Errors)) => ((Messages, Errors, Reporter, Coordinates, BufferedSource)) =
+  val buildRobotsConfiguration: ((Messages, Errors)) => ((Messages, Errors, Reporter, Bounds, BufferedSource)) =
     configureReporter _ andThen configureBounds _ andThen configureInputSource _
 
   def configureReporter(args: (Messages, Errors)): (Messages, Errors, Reporter) = try {
@@ -42,20 +42,20 @@ object Configuration {
     * Coordinates are zero based so we need to subtract 1 from desired size.
     * @return
     */
-  def configureBounds(args: (Messages, Errors, Reporter)): (Messages, Errors, Reporter, Coordinates) =
+  def configureBounds(args: (Messages, Errors, Reporter)): (Messages, Errors, Reporter, Bounds) =
     getEnv(TABLE_BOUNDS, DEFAULT_TABLE_BOUNDS) match {
       case tableBoundsRegex(x, y) =>
         val (maxX, maxY) = (x.toInt - 1, y.toInt - 1)
         if (maxX >= 0 && maxY >= 0) {
-          (s"Table size: ${maxX + 1} by ${maxY + 1}" :: args._1, args._2, args._3, Coordinates(maxX, maxY))
+          (s"Table size: ${maxX + 1} by ${maxY + 1}" :: args._1, args._2, args._3, Bounds(maxX, maxY))
         } else {
-          (args._1, s"Table size must be at least 1x1, but was: ${x}x$y)" :: args._2, args._3, Coordinates(maxX, maxY))
+          (args._1, s"Table size must be at least 1x1, but was: ${x}x$y)" :: args._2, args._3, Bounds(maxX, maxY))
         }
       case _ =>
-        (args._1, s"Table size must be specified as Width:Height (eg: 4:4), but was: ${getEnv(TABLE_BOUNDS, "")})" :: args._2, args._3, Coordinates(4, 4))
+        (args._1, s"Table size must be specified as Width:Height (eg: 4:4), but was: ${getEnv(TABLE_BOUNDS, "")})" :: args._2, args._3, Bounds(4, 4))
     }
 
-  def configureInputSource(args: (Messages, Errors, Reporter, Coordinates)): (Messages, Errors, Reporter, Coordinates, BufferedSource) =
+  def configureInputSource(args: (Messages, Errors, Reporter, Bounds)): (Messages, Errors, Reporter, Bounds, BufferedSource) =
     getEnv(INPUT_FILE).map(fileName => try {
       (s"Using file $fileName as input." :: args._1, args._2, args._3, args._4, io.Source.fromFile(fileName))
     } catch {
