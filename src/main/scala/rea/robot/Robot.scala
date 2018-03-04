@@ -38,7 +38,7 @@ case class Robot(position: Position = NotPlaced, bounds: Bounds = Bounds(4, 4), 
       case Place(NotPlaced) => this
       case PlaceObject => this.copy(bounds = boundsWithObjectAt(position.move))
       case Report => position match {
-        case Placed(coordinates, direction) => reporter.report(coordinates, direction); this
+        case Placed(coordinates, direction) => this.copy(reporter = reporter.addReport(formatReport(coordinates, direction)))
         case NotPlaced => this
       }
     } else this
@@ -59,6 +59,10 @@ case class Robot(position: Position = NotPlaced, bounds: Bounds = Bounds(4, 4), 
     case NotPlaced => bounds
   }
 
+  private def formatCoordinates(c: Coordinates): String = s"[${c.x},${c.y}]"
+  private def formatReport(coordinates: Coordinates, direction: Direction): String =
+    s"Current position is: ${coordinates.x}, ${coordinates.y}, ${direction.toString.toUpperCase}, " +
+      s"obstacles: <${bounds.obstacles.map(formatCoordinates).mkString(",")}>"
   /**
     * Command is valid if it is a Place command with coords within bounds or any other command when robot is placed
     * @param command

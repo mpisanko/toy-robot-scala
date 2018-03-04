@@ -1,34 +1,40 @@
 package rea.robot
 
-import rea.robot.Position.Coordinates
-
 import scala.collection.mutable
 
 trait Reporter {
-  def report(coordinates: Coordinates, direction: Direction): Unit
+  val reports = new mutable.ListBuffer[String]
+  def addReport(report: String): Reporter = {
+    reports.append(report)
+    this
+  }
+  type T
+  def report(): T
 }
 
 /**
   * Reporter writing to STDIN
   */
 class ConsoleReporter extends Reporter {
-  def report(coordinates: Coordinates, direction: Direction): Unit =
-    println(s"Current position is: ${coordinates.x}, ${coordinates.y}, ${direction.toString.toUpperCase}")
+  override type T = Unit
+  def report(): T = {
+    reports.foreach(println)
+  }
 }
 
 /**
   * Noop reporter
   */
 class NoopReporter extends Reporter {
-  def report(coordinates: Coordinates, direction: Direction): Unit = ()
+  override type T = Unit
+  def report(): T = ()
 }
 /**
   * Reporter logging to file
   */
 class StringListReporter extends Reporter {
-  val reports = new mutable.ListBuffer[String]
-  override def report(coordinates: Position.Coordinates, direction: Direction): Unit = {
-    reports.append(s"${coordinates.x},${coordinates.y},$direction")
+  override type T = List[String]
+  override def report(): T = {
+    reports.toList
   }
 }
-

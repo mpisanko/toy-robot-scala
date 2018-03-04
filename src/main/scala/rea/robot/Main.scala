@@ -1,10 +1,12 @@
 package rea.robot
 
-import rea.robot.Configuration.{Errors, Messages}
-
 import scala.io.BufferedSource
 
 object Main {
+
+  sealed trait Result
+  final case object Failure extends Result
+  final case class Success(robot: Robot) extends Result
 
   val USAGE_STRING: String =
     """Run toy robot. Commands can be specified passed via STDIN or as text file. Available commands are:
@@ -21,25 +23,26 @@ object Main {
       |TABLE_BOUNDS - set size of the table robot moves around, specified as: width:height, default 4:4
     """.stripMargin
 
-  def main(args: Array[String]): Unit = {
-    args.toList match {
-      case ("--help" :: Nil) => printUsage()
-      case _ => runRobot()
-    }
+  def main(args: Array[String]): Unit = args.toList match {
+    case ("--help" :: Nil) => printUsage()
+    case _ => runRobot()
   }
 
   /**
-    * Read Robot configuration and let Robot process commands from configured Source.
+    * Read Robot configuration and let Robot process commands from configured Source if no config errors found.
     * @return Robot in position after processing all commands
     */
-  def runRobot(): Robot = {
-    lazy val (messages, errors, reporter, tableBounds, input) = Configuration.buildRobotsConfiguration((List(), List()))
-
-    reportAndTerminateIfErrorsFound(messages, errors)
-
-    val robot = Robot(NotPlaced, tableBounds, reporter)
-    withOpen(input)(processInput(robot))
-  }
+  def runRobot(): Result = Configuration.buildRobotsConfiguration(RobotConfiguration()) match {
+      case rc: RobotConfiguration =>
+        rc.messages.foreach(println)
+        val unplacedRobot = Robot(NotPlaced, rc.bounds, rc.reporter)
+        val robot = withOpen(rc.source)(processInput(unplacedRobot))
+        robot.reporter.report
+        Success(robot)
+      case err: ConfError =>
+        println(err.message)
+        Failure
+    }
 
   /**
     * Helper function for passing the commands to robot and closing Resource afterwards
@@ -61,17 +64,6 @@ object Main {
     f(resource)
   } finally {
     resource.close()
-  }
-
-  val ERROR_CODE = 666
-  private def reportAndTerminateIfErrorsFound(messages: Messages, errors: Errors): Unit = {
-    if(errors.nonEmpty) {
-      errors.reverse.foreach(println)
-      sys.exit(ERROR_CODE)
-    }
-    if(messages.nonEmpty) {
-      messages.reverse.foreach(println)
-    }
   }
 
   private def printUsage(): Unit = {
