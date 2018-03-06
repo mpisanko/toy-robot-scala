@@ -7,10 +7,10 @@ import rea.robot.Robot.Bounds
 class RobotTest extends FlatSpec with Matchers {
 
   it should "execute valid commands" in {
-    val robot = Robot(Placed(0,0, West), Bounds(1, 1), new StringListReporter)
+    val robot = Robot(Placed(0,0, West), Bounds(1, 1), StringListReporter())
     robot.execute(Left).position shouldEqual Placed(0,0, South)
     robot.execute(Right).position shouldEqual Placed(0,0, North)
-    robot.execute(Report).reporter.asInstanceOf[StringListReporter].reports.size shouldEqual 1
+    robot.execute(Report).reporter.reports.size shouldEqual 1
     robot.execute(Place(1, 1, West)).position shouldEqual Placed(1, 1, West)
   }
 
@@ -39,7 +39,7 @@ class RobotTest extends FlatSpec with Matchers {
   }
 
   it should "process commands" in {
-    val robot = Robot(NotPlaced, Bounds(4, 4), new StringListReporter)
+    val robot = Robot(NotPlaced, Bounds(4, 4), StringListReporter())
     val commands: TraversableOnce[String] =
       List("place -1,9,east", "report", "move",
           "place 0,0,north", "move", "move", "left",
@@ -47,7 +47,8 @@ class RobotTest extends FlatSpec with Matchers {
           "right", "move", "move", "report", "right", "move", "move", "report").toIterator
     val newRobot = robot.processCommands(commands)
     newRobot.position shouldEqual Placed(2, 4, East)
-    newRobot.reporter.asInstanceOf[StringListReporter].reports.size shouldEqual 2
+    println(s"REports: ${newRobot.reporter.reports}")
+    newRobot.reporter.reports.size shouldEqual 2
   }
 
   it should "ignore place object commands when not placed or object 'falls outside the table'" in {

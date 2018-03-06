@@ -3,7 +3,7 @@ package rea.robot
 import Position.Coordinates
 import rea.robot.Robot.Bounds
 
-case class Robot(position: Position = NotPlaced, bounds: Bounds = Bounds(4, 4), reporter: Reporter = new ConsoleReporter) {
+case class Robot(position: Position = NotPlaced, bounds: Bounds = Bounds(4, 4), reporter: Reporter = ConsoleReporter()) {
 
   /**
     * Reducer for the foldLeft operation (a Robot takes new command as input and returns resulting Robot)

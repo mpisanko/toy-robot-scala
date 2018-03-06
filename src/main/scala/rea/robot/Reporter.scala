@@ -2,7 +2,7 @@ package rea.robot
 
 import scala.collection.mutable
 
-trait Reporter {
+sealed trait Reporter {
   val reports = new mutable.ListBuffer[String]
   def addReport(report: String): Reporter = {
     reports.append(report)
@@ -15,7 +15,7 @@ trait Reporter {
 /**
   * Reporter writing to STDIN
   */
-class ConsoleReporter extends Reporter {
+final case class ConsoleReporter() extends Reporter {
   override type T = Unit
   def report(): T = {
     reports.foreach(println)
@@ -25,14 +25,14 @@ class ConsoleReporter extends Reporter {
 /**
   * Noop reporter
   */
-class NoopReporter extends Reporter {
+final case object NoopReporter extends Reporter {
   override type T = Unit
   def report(): T = ()
 }
 /**
   * Reporter logging to file
   */
-class StringListReporter extends Reporter {
+final case class StringListReporter() extends Reporter {
   override type T = List[String]
   override def report(): T = {
     reports.toList

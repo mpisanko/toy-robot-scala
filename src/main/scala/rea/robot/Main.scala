@@ -4,9 +4,7 @@ import scala.io.BufferedSource
 
 object Main {
 
-  sealed trait Result
-  final case object Failure extends Result
-  final case class Success(robot: Robot) extends Result
+  import scala.util.{Either,Right,Left}
 
   val USAGE_STRING: String =
     """Run toy robot. Commands can be specified passed via STDIN or as text file. Available commands are:
@@ -18,7 +16,7 @@ object Main {
       |REPORT (println information about robot's position and bearing)
       |
       |You can customise the program by using environment variables:
-      |REPORTER_CLASS - Reporter, one of: rea.robot.ConsoleReporter or rea.robot.NoopReporter
+      |REPORTER - Reporter, one of: console, string
       |INPUT_FILE - input file to read commands from (otherwise commands will be read from STDIN)
       |TABLE_BOUNDS - set size of the table robot moves around, specified as: width:height, default 4:4
     """.stripMargin
@@ -32,16 +30,16 @@ object Main {
     * Read Robot configuration and let Robot process commands from configured Source if no config errors found.
     * @return Robot in position after processing all commands
     */
-  def runRobot(): Result = Configuration.buildRobotsConfiguration(RobotConfiguration()) match {
-      case rc: RobotConfiguration =>
+  def runRobot(): Either[String, Robot] = Configuration.buildRobotsConfiguration(Configuration()) match {
+      case Right(rc) =>
         rc.messages.foreach(println)
         val unplacedRobot = Robot(NotPlaced, rc.bounds, rc.reporter)
         val robot = withOpen(rc.source)(processInput(unplacedRobot))
         robot.reporter.report
-        Success(robot)
-      case err: ConfError =>
-        println(err.message)
-        Failure
+        Right(robot)
+      case Left(err) =>
+        println(err)
+        Left(err)
     }
 
   /**

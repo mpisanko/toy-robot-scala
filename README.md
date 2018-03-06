@@ -13,7 +13,7 @@ the robot / application will ignore ALL commands until a valid PLACE command has
 
 ## 12 factor app - environment variables
 The application is configured using environment variables so that settings can easily be changed based on environment or needs.  
-Alternative Reporter implementation (fully qualified class name) can be passed as `REPORTER_CLASS`. Default implementation is `rea.robot.ConsoleReporter`.  
+Alternative Reporter implementation (fully qualified class name) can be passed as `REPORTER`. Default implementation is `Console`. The other option is `String`.  
 Input file with commands can be specified using `INPUT_FILE` property. Unless specified input from STDIN will be used. To end inputting press CTRL+D.  
 Size of the table can be specified using `TABLE_BOUNDS` property, which has format `x:y`, with default `5:5`. A table must have size of at least 1x1 (one position only: 0,0).  
 
